@@ -21,7 +21,8 @@ phonobyte/
 │   ├── tokenizers/
 │   │   ├── base.py               # Tokenizer abstract base class
 │   │   └── jp_tokenizer.py       # Zero-dictionary Japanese tokenizer
-│   └── dataset.py                # PyTorch streaming stereoscopic data pipeline
+│   └── training
+│   │   └── dataset.py                # PyTorch streaming stereoscopic data pipeline
 ├── models/
 │   └── transformer.py            # PyTorch Dual-Channel Transformer skeleton
 ├── benchmarks/
