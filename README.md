@@ -26,7 +26,7 @@ phonobyte/
 ├── models/
 │   └── transformer.py            # PyTorch Dual-Channel Transformer skeleton
 ├── benchmarks/
-│   ├── run_advanced_benchmark.py # English training parity runner
+│   ├── run_en_benchmark.py # English training parity runner
 │   ├── run_jp_benchmark.py       # Japanese context density runner
 │   └── results/
 │       ├── en_l4_dashboard.png   # English convergence baseline dashboard
