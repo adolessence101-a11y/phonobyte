@@ -39,16 +39,20 @@ class UnifiedPVBForge:
     def compress_arbitrary_stream(self, text):
         bitstream = ""
         
-        # Tokenizer regex handles both words/punctuation and treats contiguous Japanese text as single strings
         tokens = re.findall(r"[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+|\*\*|\*|[\w']+|[.,!?;:\n<>/=\"\[\]{}#\-_()*]| ", text)
         
-        for token in tokens:
+        for idx, token in enumerate(tokens):
+
+            if token == ' ':
+                prev_is_jp = idx > 0 and self.is_japanese(tokens[idx - 1])
+                next_is_jp = idx < len(tokens) - 1 and self.is_japanese(tokens[idx + 1])
+                if prev_is_jp or next_is_jp:
+                    continue  # Safely discard formatting spaces within native Japanese text segments
+            
             # 1. Route Native Japanese Text Route
             if self.is_japanese(token):
-                # Pass directly to our Mora-aligned 8-bit packed engine
                 packed_bytes, _ = self.jp_tokenizer.encode(token)
                 for byte in packed_bytes:
-                    # Inject 110 header flag followed by raw 8-bit phonetic layout
                     bitstream += "110" + format(byte, '08b')
                 continue
 
