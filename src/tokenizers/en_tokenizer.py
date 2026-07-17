@@ -1,5 +1,6 @@
 import re
 import torch
+from src.tokenizers.base import BasePhonobyteTokenizer
 
 VOWELS = set('aeiouy')
 DIGRAPHS = {'th', 'sh', 'ch', 'ph', 'wh', 'ng', 'ck', 'qu'}
@@ -33,11 +34,12 @@ ALL_MATRICES = [
     PUNCTUATION_MATRIX, FORMATTING_MATRIX, TACTICAL_RESERVE_MATRIX
 ]
 
-class PhonobyteTokenizer:
+class PhonobyteTokenizer(BasePhonobyteTokenizer):
     def __init__(self):
+        super().__init__()
         self.syllable_to_id = {}
         self.id_to_syllable = {}
-        self.next_syllable_id = 256 
+        self.next_syllable_id = 256
 
     def is_vowel(self, phoneme):
         return all(char.lower() in VOWELS for char in phoneme)
