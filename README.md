@@ -13,7 +13,7 @@ Unified Cross-Lingual Routing: Bypasses language-specific dictionaries using bit
 High-Density Storage: The storage-optimized Phonobyte Vellum Binary (.pvb) format leverages static Huffman coding to eliminate pre-training database bottlenecks.
 
 📂 Repository Structure
-
+```text
 phonobyte/
 ├── src/
 │   ├── core/
@@ -33,7 +33,7 @@ phonobyte/
 ├── phonobyte-white-paper.pdf
 ├── LICENSE
 └── README.md
-
+```
 
 🌐 The Multi-Linguistic Paradigm Shift
 
@@ -41,37 +41,11 @@ Traditional tokenizers treat non-Latin scripts inefficiently. To represent a sin
 
 Phonobyte resolves this by routing characters through bit-level prefixes directly into a single, unified bitstream:
 
-Bit Prefix
-
-Target Pipeline
-
-Mechanism
-
-Storage Footprint
-
-0 / 10
-
-English Syllable
-
-Dynamic Syllable ID Lookup
-
-8 to 12 bits per syllable
-
-111
-
-Escape State
-
-Punctuation, Capitalization, Markdown
-
-10 bits total
-
-110
-
-Japanese Mora
-
-Continuous 8-bit Packed Sound Envelope
-
-11 bits total (Zero Vocab)
+|Bit Prefix|Target Pipeline|Mechanism|Storage Footprint|
+| ---| ---| ---|---|
+|0 / 10|English Syllable|Dynamic Syllable ID Lookup|8 to 12 bits per syllable|
+|111|Escape State|Punctuation, Capitalization, Markdown|10 bits total
+|110|Japanese Mora|Continuous 8-bit Packed Sound Envelope|11 bits total (Zero Vocab)
 
 By routing Japanese characters directly behind the 110 prefix, Phonobyte streams continuous phonetic mora structures mathematically, bypassing vocabulary lookups entirely and reducing a raw Japanese character footprint from 24 bits (UTF-8) down to just 11 bits.
 
@@ -91,16 +65,18 @@ Mixed-Language Compression Efficiency: When evaluating a bilingual string ("The 
 
 1. Tokenization and Decoding
 
+```text
 from src.tokenizers.jp_tokenizer import JapanesePhonobyteTokenizer
 
 tokenizer = JapanesePhonobyteTokenizer()
 masks, ids = tokenizer.encode("赤色の竜が歩いた。", return_tensors="list")
 
 print("Packed 8-bit Mora Registers:", masks)
-
+```
 
 2. High-Density Storage Compression (.pvb)
 
+```text
 from src.core.pvb_forge import UnifiedPVBForge
 
 forge = UnifiedPVBForge()
@@ -109,7 +85,7 @@ bitstream = forge.compress_arbitrary_stream(text)
 
 ratio = forge.evaluate_efficiency(text, bitstream)
 print(f"Data Reduction: {ratio:.1f}%")
-
+```
 
 Every human syllable processed by the framework is mapped to a static 8-bit register representing a structured acoustic envelope consisting of three distinct segments:
 
@@ -167,9 +143,11 @@ Save it to your root directory as tinystories_sample.txt.
 
 Run the optimized benchmarking suite:
 
+```text
 python benchmarks/run_advanced_benchmark.py
+```
 
-
+```text
 @preprint{phonobyte2026,
   author    = {Michael D. Flowers},
   title     = {The Phonobyte: A Deterministic, Phonotactically Aligned Alternative to Sub-Word Tokenization},
@@ -177,7 +155,7 @@ python benchmarks/run_advanced_benchmark.py
   publisher = {ResearchGate},
   doi       = {DOI: 10.13140/RG.2.2.30807.43687}
 }
-
+```
 
 License
 
