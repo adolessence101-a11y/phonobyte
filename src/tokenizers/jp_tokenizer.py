@@ -71,10 +71,7 @@ class JapanesePhonobyteTokenizer(BasePhonobyteTokenizer):
 
     def encode(self, text: str, return_tensors: str = "list") -> Tuple[Union[List[int], torch.Tensor], Union[List[int], torch.Tensor]]:
         result = self.kks.convert(text)
-        romaji_chunks = []
-        for item in result:
-            # Reconstruct with spaces representing word boundaries
-            romaji_chunks.append(item['hepburn'])
+        romaji_chunks = [item['hepburn'] for item in result]
         
         masks = []
         ids = []
@@ -91,16 +88,12 @@ class JapanesePhonobyteTokenizer(BasePhonobyteTokenizer):
                 
                 masks.append(packed_byte)
                 ids.append(packed_byte)
-            
-            # Add a boundary/space marker between words if it isn't the last chunk
-            if len(morae) > 0 and chunk != romaji_chunks[-1]:
-                # Special separator byte: [Onset=15, Glide=0, Nucleus=7] -> 0xF7 (247)
-                space_byte = (15 << 4) | (0 << 3) | 7
-                masks.append(space_byte)
-                ids.append(space_byte)
+                
+            # REMOVED: No more injecting space_bytes (247) between chunks!
+            # This keeps the phonetic token sequence perfectly dense.
                 
         return self._to_tensor(masks, return_tensors), self._to_tensor(ids, return_tensors)
-
+    
     def decode(self, ids: List[int]) -> str:
         reconstructed = []
         
