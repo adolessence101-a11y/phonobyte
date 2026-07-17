@@ -1,24 +1,26 @@
 import re
+from src.tokenizers.jp_tokenizer import JapanesePhonobyteTokenizer
 
 class UnifiedPVBForge:
     def __init__(self):
         self.vowels = set('aeiouyAEIOUY')
         self.syllable_to_id = {}
         self.next_id = 256
+        self.jp_tokenizer = JapanesePhonobyteTokenizer()  # Inject our zero-vocab engine
+        
         self.ESCAPE_MATRIX = {
             '.': 0x01, ',': 0x02, '?': 0x03, '!': 0x04, ';': 0x05, ':': 0x06, '\n': 0x07,
             '<': 0x08, '>': 0x09, '/': 0x0A, '=': 0x0B, '"': 0x0C, '[': 0x0D, ']': 0x0E,
             '{': 0x0F, '}': 0x11, '#': 0x12, '-': 0x13, '_': 0x14, '(': 0x15, ')': 0x16,
             "'": 0x17, ' ': 0x00,
-            '[CAP_NEXT]': 0x42,
-            '[CAP_LOCK]': 0x43,
-            '[SUFFIX_S]': 0x44,
-            '[SUFFIX_ED]': 0x45,
-            '[SUFFIX_ING]': 0x46,
-            '[BOLD_NEXT]': 0x47,
-            '[ITALIC_NEXT]': 0x48,
-            '[ASCII_LITERAL]': 0x39
+            '[CAP_NEXT]': 0x42, '[CAP_LOCK]': 0x43,
+            '[SUFFIX_S]': 0x44, '[SUFFIX_ED]': 0x45, '[SUFFIX_ING]': 0x46,
+            '[BOLD_NEXT]': 0x47, '[ITALIC_NEXT]': 0x48, '[ASCII_LITERAL]': 0x39
         }
+
+    def is_japanese(self, text: str) -> bool:
+        # Regex to detect Japanese Kanji, Hiragana, and Katakana blocks
+        return bool(re.search(r'[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]', text))
 
     def detect_suffixes(self, word):
         lower_word = word.lower()
@@ -36,9 +38,21 @@ class UnifiedPVBForge:
 
     def compress_arbitrary_stream(self, text):
         bitstream = ""
-        tokens = re.findall(r"\*\*|\*|[\w']+|[.,!?;:\n<>/=\"\[\]{}#\-_()*]| ", text)
+        
+        # Tokenizer regex handles both words/punctuation and treats contiguous Japanese text as single strings
+        tokens = re.findall(r"[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+|\*\*|\*|[\w']+|[.,!?;:\n<>/=\"\[\]{}#\-_()*]| ", text)
         
         for token in tokens:
+            # 1. Route Native Japanese Text Route
+            if self.is_japanese(token):
+                # Pass directly to our Mora-aligned 8-bit packed engine
+                packed_bytes, _ = self.jp_tokenizer.encode(token)
+                for byte in packed_bytes:
+                    # Inject 110 header flag followed by raw 8-bit phonetic layout
+                    bitstream += "110" + format(byte, '08b')
+                continue
+
+            # 2. Standard English / Markdown Route
             if token == '**':
                 bitstream += self.encode_escape_state('[BOLD_NEXT]')
                 continue
@@ -81,7 +95,9 @@ class UnifiedPVBForge:
         return bitstream
 
     def evaluate_efficiency(self, raw_text, bitstream):
-        ascii_bits = len(raw_text) * 8
+        # Japanese/Unicode text uses 24 bits minimum per character in raw standard text space
+        # We calculate the real byte array footprint length to find accurate savings
+        raw_bytes_bits = len(raw_text.encode('utf-8')) * 8
         pvb_bits = len(bitstream)
-        ratio = (1 - (pvb_bits / ascii_bits)) * 100
+        ratio = (1 - (pvb_bits / raw_bytes_bits)) * 100
         return ratio
