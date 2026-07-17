@@ -141,6 +141,8 @@ def run_benchmark(dataset_path, device, max_steps=5000):
                 break
             x_masks, x_ids, y_masks = x_masks.to(device), x_ids.to(device), y_masks.to(device)
             
+            y_masks = torch.clamp(y_masks, min=0, max=config_b.vocab_size - 1)
+            
             optimizer_b.zero_grad()
             logits = model_b(x_masks, x_ids)
             loss = criterion_b(logits.view(-1, config_b.vocab_size), y_masks.view(-1))
