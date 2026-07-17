@@ -1,49 +1,45 @@
 Phonobyte: Deterministic, Phonotactically Aligned Tokenization
 
-Phonobyte is a high-performance, deterministic alternative to statistical sub-word tokenization algorithms like Byte-Pair Encoding (BPE) and WordPiece. By mapping human language directly onto the physical, biological rules of speech production (phonotactics), Phonobyte completely eliminates the need for massive, active lookup embedding tables at the input layer of neural networks.
+A high-performance, zero-dictionary alternative to statistical sub-word tokenization. By mapping language directly to the physical, biological rules of speech production (phonotactics), Phonobyte completely eliminates massive lookup embedding tables at the input layer of neural networks.
 
-This repository contains the complete implementation of the Phonobyte framework, the storage-optimized Phonobyte Vellum Binary (.pvb) compression engine, and a stereoscopic Dual-Channel Transformer architecture in PyTorch.
+🚀 Core Breakthroughs
 
-Core Features
+Zero-Vocabulary Representation: Eliminates standard 32,000+ token dictionaries, slashing input layer memory overhead by 99.9%.
 
-Zero-Vocabulary Representation: Eliminates standard 32000+ token dictionaries, reducing input layer memory overhead by over 99.9%.
+Dual-Channel Stereoscopic Embedding: Projects the physical vocal envelope (8-bit acoustic mask) and lexical identity (syllable ID) as parallel feature vectors.
 
-Dual-Channel Stereoscopic Embedding: Projects the physical vocal envelope (8-bit acoustic mask) and lexical identity (syllable ID) as parallel feature vectors for direct attention processing.
+Unified Cross-Lingual Routing: Bypasses language-specific dictionaries using bit-level prefix routing for Latin and CJK logographic scripts simultaneously.
 
-Unified Cross-Lingual Routing: Bypasses language-specific dictionaries using bit-level prefix routing, maximizing context window savings for both Latin and CJK logographic scripts simultaneously.
+High-Density Storage: The storage-optimized Phonobyte Vellum Binary (.pvb) format leverages static Huffman coding to eliminate pre-training database bottlenecks.
 
-Zero-Core State Toggles: Handles capitalization, formatting (bold, italics), and grammatical suffixes out-of-band, preserving a clean and highly stable hidden representation space.
-
-High-Density Disk Storage (.pvb): Combines phonotactic frequency distributions with static Huffman coding to minimize pre-training database sizes and eliminate network I/O bottlenecks during cluster training.
-
-Repository Structure
+📂 Repository Structure
 
 phonobyte/
-  ├── src/
-  │    ├── core/
-  │    │    └── pvb_forge.py        (The unified .pvb compressor and bitstream router)
-  │    ├── tokenizers/
-  │    │    ├── base.py             (The primary tokenizer abstract base class)
-  │    │    └── jp_tokenizer.py     (The mathematical, zero-dictionary Japanese tokenizer)
-  │    └── dataset.py               (The PyTorch data loading pipeline for stereoscopic tensors)
-  ├── models/
-  │    └── transformer.py           (PyTorch Dual-Channel Transformer skeleton and stereoscopic attention layers)
-  ├── benchmarks/
-  │    ├── run_advanced_benchmark.py (The unified multi-metric testing harness for English parity runs)
-  │    ├── run_jp_benchmark.py       (The contextual density comparison harness for Japanese text)
-  │    └── results/
-  │         ├── en_l4_dashboard.png  (English convergence baseline comparison)
-  │         └── jp_l4_dashboard.png  (Japanese performance metrics dashboard)
-  ├── phonobyte-white-paper.pdf
-  ├── LICENSE
-  └── README.md
+├── src/
+│   ├── core/
+│   │   └── pvb_forge.py          # Unified .pvb compressor & bitstream router
+│   ├── tokenizers/
+│   │   ├── base.py               # Tokenizer abstract base class
+│   │   └── jp_tokenizer.py       # Zero-dictionary Japanese tokenizer
+│   └── dataset.py                # PyTorch streaming stereoscopic data pipeline
+├── models/
+│   └── transformer.py            # PyTorch Dual-Channel Transformer skeleton
+├── benchmarks/
+│   ├── run_advanced_benchmark.py # English training parity runner
+│   ├── run_jp_benchmark.py       # Japanese context density runner
+│   └── results/
+│       ├── en_l4_dashboard.png   # English convergence baseline dashboard
+│       └── jp_l4_dashboard.png   # Japanese performance dashboard
+├── phonobyte-white-paper.pdf
+├── LICENSE
+└── README.md
 
 
-The Multi-Linguistic Paradigm Shift
+🌐 The Multi-Linguistic Paradigm Shift
 
-Traditional tokenizers treat non-Latin scripts inefficiently. To represent a single Japanese Kanji or Kana character, standard BPE algorithms explode the sequence length by breaking the character into 3 to 4 raw UTF-8 bytes. This imposes a heavy context overhead on localized AI deployment.
+Traditional tokenizers treat non-Latin scripts inefficiently. To represent a single Japanese Kanji or Kana, standard BPE algorithms explode the sequence length by breaking the character into 3 to 4 raw UTF-8 bytes—imposing a heavy "Token Tax" on localized AI deployment.
 
-Phonobyte resolves this through bit-level routing. The .pvb compression engine utilizes an unallocated bit prefix to map different linguistic architectures into a single, unified bitstream:
+Phonobyte resolves this by routing characters through bit-level prefixes directly into a single, unified bitstream:
 
 Bit Prefix
 
@@ -79,9 +75,9 @@ Continuous 8-bit Packed Sound Envelope
 
 By routing Japanese characters directly behind the 110 prefix, Phonobyte streams continuous phonetic mora structures mathematically, bypassing vocabulary lookups entirely and reducing a raw Japanese character footprint from 24 bits (UTF-8) down to just 11 bits.
 
-Empirical Benchmark: BPE vs. Phonobyte-JP
+📊 Empirical Benchmark: BPE vs. Phonobyte-JP
 
-We evaluated the contextual density of the zero-dictionary Japanese tokenizer against a state-of-the-art BPE tokenizer (LLaMA-3) across a high-variance validation corpus. By removing structural word-spacing metadata (which Japanese text does not natively use), Phonobyte-JP compresses the context footprint significantly:
+We evaluated the contextual density of the zero-dictionary Japanese tokenizer against a state-of-the-art BPE tokenizer (LLaMA-3) across a high-variance validation corpus:
 
 Sentence 1 (Dialogue/Verbs): 12 Phonobyte Tokens vs. 15 BPE Tokens (20.0% context savings)
 
@@ -89,21 +85,16 @@ Sentence 3 (Technical Statement): 37 Phonobyte Tokens vs. 46 BPE Tokens (19.6% c
 
 Sentence 5 (Complex System Design): 39 Phonobyte Tokens vs. 49 BPE Tokens (20.4% context savings)
 
-Mixed-Language Compression Efficiency: When evaluating a highly complex bilingual string ("The developer creates a lean engine. 日本語のトークン化は非常に非効率的です。"), the upgraded UnifiedPVBForge compressed the raw input from 776 bits down to 419 bits, achieving a 46.0% overall data reduction across the unified binary layout.
+Mixed-Language Compression Efficiency: When evaluating a bilingual string ("The developer creates a lean engine. 日本語のトークン化は非常に非効率的です。"), the upgraded UnifiedPVBForge compressed the raw input from 776 bits down to 419 bits, achieving a 46.0% overall data reduction across the unified binary layout.
 
-Quickstart Guide
+⚡ Quickstart Guide
 
-The scripts in this repository are written in standard Python and PyTorch, designed to be easily integrated into any existing data pipeline or machine learning workflow.
-
-1. Linguistic Tokenization and Decoding
+1. Tokenization and Decoding
 
 from src.tokenizers.jp_tokenizer import JapanesePhonobyteTokenizer
 
 tokenizer = JapanesePhonobyteTokenizer()
-
-# Tokenize raw Japanese text
-text = "赤色の竜が歩いた。"
-masks, ids = tokenizer.encode(text, return_tensors="list")
+masks, ids = tokenizer.encode("赤色の竜が歩いた。", return_tensors="list")
 
 print("Packed 8-bit Mora Registers:", masks)
 
@@ -113,36 +104,14 @@ print("Packed 8-bit Mora Registers:", masks)
 from src.core.pvb_forge import UnifiedPVBForge
 
 forge = UnifiedPVBForge()
-
-# Compress mixed bilingual text directly to a unified bitstream
 text = "The developer creates a lean engine. 日本語のトークン化は非常に非効率的です。"
 bitstream = forge.compress_arbitrary_stream(text)
 
-# Check data conservation ratio compared to raw UTF-8 bits
 ratio = forge.evaluate_efficiency(text, bitstream)
 print(f"Data Reduction: {ratio:.1f}%")
 
 
-3. Loading into the Dual-Channel Transformer
-
-import torch
-from models.transformer import RawPhonobyteTransformer, PhonobyteConfig
-
-config = PhonobyteConfig()
-model = RawPhonobyteTransformer(config)
-
-# Dummy batch input representing [Batch Size, Sequence Length]
-mask_tensor = torch.randint(0, 256, (2, 128))
-id_tensor = torch.randint(0, 10000, (2, 128))
-
-# Forward pass outputs next-step predictions over the 256 register states
-logits = model(mask_tensor, id_tensor)
-print("Output shape:", logits.shape)
-
-
-Mathematical Design: The 8-Bit Envelope
-
-Every human syllable processed by the framework is mapped to a static 8-bit register. This register represents a structured acoustic envelope consisting of three distinct segments:
+Every human syllable processed by the framework is mapped to a static 8-bit register representing a structured acoustic envelope consisting of three distinct segments:
 
 Onset Bits [7 : 5] (3 bits): Tracks the physical manner, placement, and complexity of the initial consonant cluster.
 
@@ -152,9 +121,7 @@ Coda Bits [3 : 0] (4 bits): Tracks the terminal consonant cluster constraints.
 
 This structure locks the baseline storage requirement of any valid spoken syllable to a constant 8 bits, yielding instant, deterministic data compression without requiring a statistical vocabulary dictionary.
 
-The Verification Gauntlet: Replication Protocol & Empirical Results
-
-We challenge the research community to verify the empirical advantages of the Phonobyte framework. To replicate our benchmarks or verify our results, configure two identical sequence-to-sequence autoregressive models using the following parameters:
+We challenge the research community to verify the empirical advantages of the Phonobyte framework. Configure two identical sequence-to-sequence autoregressive models using the following parameters:
 
 Sequence Length: 128
 
@@ -176,9 +143,9 @@ Model A (Control): Standard BPE tokenizer (32,000 vocabulary size) with a conven
 
 Model B (Experimental): Phonobyte Tokenizer with the static 8-bit Dual-Channel Embedding projection layer and a 256-state linear head.
 
-Our Baseline Results (Nvidia L4 GPU Run)
+Empirical Baseline Results (Nvidia L4 GPU Run)
 
-We executed this exact protocol for 50,000 steps on an enterprise Nvidia L4 GPU. Here is the empirical baseline you are looking to replicate:
+We executed this exact protocol for 50,000 steps on an enterprise Nvidia L4 GPU:
 
 1. Input Parameter & Memory Footprint
 
@@ -192,11 +159,9 @@ Model A (Legacy BPE): Commences training at a high initial entropy baseline (~10
 
 Model B (Phonobyte): Commences at a much lower initial entropy (~5.0 loss) due to its constrained 256-state output register. It exhibits a smooth, stable, continuous diagonal slide, maintaining an average loss of 0.6 (frequently dipping to 0.5).
 
-How to Run the Benchmark
+Execution Command
 
-To execute this protocol on your own system or cloud pod:
-
-Download the TinyStories-valid.txt file from Hugging Face.
+Download TinyStories-valid.txt from Hugging Face.
 
 Save it to your root directory as tinystories_sample.txt.
 
@@ -204,8 +169,6 @@ Run the optimized benchmarking suite:
 
 python benchmarks/run_advanced_benchmark.py
 
-
-Citation and Prior Art
 
 @preprint{phonobyte2026,
   author    = {Michael D. Flowers},
