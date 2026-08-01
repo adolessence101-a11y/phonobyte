@@ -154,7 +154,7 @@ python benchmarks/run_advanced_benchmark.py
   title     = {The Phonobyte: A Deterministic, Phonotactically Aligned Alternative to Sub-Word Tokenization},
   year      = {2026},
   publisher = {ResearchGate},
-  doi       = {DOI: 10.13140/RG.2.2.30807.43687}
+  doi       = {DOI: 10.13140/RG.2.2.30807.43687/1}
 }
 ```
 
